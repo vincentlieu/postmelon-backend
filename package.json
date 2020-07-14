@@ -1,15 +1,19 @@
 {
   "name": "postmelon-backend",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "postmelon mern stack",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vincentlieu/postmelon-backend.git"
+  },
+  "author": "postmelon team",
   "license": "ISC",
-  "dependencies": {
-    "express": "^4.17.1"
-  }
+  "bugs": {
+    "url": "https://github.com/vincentlieu/postmelon-backend/issues"
+  },
+  "homepage": "https://github.com/vincentlieu/postmelon-backend#readme"
 }
