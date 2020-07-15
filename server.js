@@ -7,6 +7,10 @@ const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => console.group(`Server running on port ${PORT}`));
 
+// init middleware
+
+app.use(express.json({ extended: false }));
+
 // connect to database
 
 connectDB();
