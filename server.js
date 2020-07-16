@@ -1,7 +1,11 @@
 const express = require("express");
 const app = express();
 const connectDB = require("./config/db");
+
 const usersRouter = require("./routes/api/users");
+const authRouter = require('./routes/api/auth');
+const postsRouter = require('./routes/api/posts');
+const profileRouter = require('./routes/api/profile');
 
 app.get("/", (req, res) => res.send("API RUNNING"));
 
@@ -9,17 +13,14 @@ const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => console.group(`Server running on port ${PORT}`));
 
-// init middleware
-
+// INITIALISE MIDDLEWEAR
 app.use(express.json({ extended: false }));
 
-// connect to database
-
+//CONNECT TO DATABASE
 connectDB();
 
-// define routes
-
+// DEFINE ROUTES
 app.use("/api/users", usersRouter);
-app.use("/api/auth", require("./routes/api/auth"));
-app.use("/api/posts", require("./routes/api/posts"));
-app.use("/api/profile", require("./routes/api/profile"));
+app.use("/api/auth", authRouter);
+app.use("/api/posts", postsRouter);
+app.use("/api/profile", profileRouter);
