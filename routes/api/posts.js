@@ -41,5 +41,27 @@ router.get('/:id', (req, res) => {
     );
 });
 
+// EDIT INDIVIDUAL POST
+router.put('/:id', (req, res) => {
+    Post.findByIdAndUpdate(req.params.id, {
+      $set: {
+        content: req.body.content,
+        modifiedDate: new Date(Date.now())
+      },
+    })
+      .then(() =>
+        res.json({
+          message: 'Post successfully updated.',
+          postId: req.params.id,
+        })
+      )
+      .catch((error) =>
+        res.status(400).json({
+          message: 'Post could not be updated. Please check whether the post exists or content is specified for the post.',
+          postId: req.params.id,
+        })
+      );
+});
+
 
 module.exports = router;
