@@ -63,5 +63,25 @@ router.put('/:id', (req, res) => {
       );
 });
 
+// DELETE INDIVIDUAL POST
+router.delete('/:id', (req, res) => {
+  Post.findByIdAndDelete(req.params.id)
+    .then(() =>
+      res.json({ message: 'Post successfully deleted.', postId: req.params.id })
+    )
+    .catch((err) =>
+      res
+        .status(400)
+        .json({
+          message: 'Cannot delete a post that does not exist.',
+          postId: req.params.id,
+        })
+    );
+});
+
+// BELOW REMOVES ALL POSTS
+// router.delete('/', (req, res) => {
+//   Post.remove({}).then(()=> res.json("Removed all posts"))
+// })
 
 module.exports = router;
