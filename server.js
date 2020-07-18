@@ -4,7 +4,7 @@ const connectDB = require("./config/db");
 
 const usersRouter = require("./routes/api/users");
 const authRouter = require('./routes/api/auth');
-const postsRouter = require('./routes/api/posts');
+const postsRouter = require('./routes/api/post_routes');
 const profileRouter = require('./routes/api/profile');
 
 app.get("/", (req, res) => res.send("API RUNNING"));
