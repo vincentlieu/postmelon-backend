@@ -3,9 +3,9 @@ const app = express();
 const connectDB = require("./config/db");
 
 const usersRouter = require("./routes/api/users");
-const authRouter = require('./routes/api/auth');
-const postsRouter = require('./routes/api/posts');
-const profileRouter = require('./routes/api/profile');
+const authRouter = require("./routes/api/auth");
+const postsRouter = require("./routes/api/posts");
+const profileRouter = require("./routes/api/profile");
 
 app.get("/", (req, res) => res.send("API RUNNING"));
 
