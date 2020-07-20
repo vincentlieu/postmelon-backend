@@ -6,6 +6,7 @@ const gravatar = require("gravatar");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const config = require("config");
+const auth = require("../../middleware/auth");
 
 // Create user registeration
 
@@ -90,5 +91,74 @@ router.post(
     }
   }
 );
+
+// create friend
+
+router.put("/friend/:id", auth, async (req, res) => {
+  try {
+    const friend = await User.findById(req.params.id); // who i wanna add
+
+    const user = await User.findById(req.user.id); // me
+    // console.log(friend);
+    // console.log(user);
+
+    const newFriend = {
+      name: friend.name,
+      avatar: friend.avatar,
+      user: req.params.id,
+    };
+
+    if (
+      user.friends.filter((friend) => friend.user.toString() === req.params.id)
+        .length > 0
+    ) {
+      return res.status(400).json({ msg: "Already add friend" });
+    }
+
+    user.friends.unshift(newFriend);
+    await user.save();
+    console.log(user.friends);
+
+    res.json(user.friends);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server error");
+  }
+});
+
+// @route put api/users/unfriend/:id
+// @desc friend a post
+// @access Private
+
+router.put("/unfriend/:id", auth, async (req, res) => {
+  try {
+    const friend = await User.findById(req.params.id);
+
+    const user = await User.findById(req.user.id);
+    console.log(friend);
+    console.log(user);
+    if (
+      user.friends.filter((friend) => friend.user.toString() === req.params.id)
+        .length === 0
+    ) {
+      return res.status(400).json({ msg: "You has not yet been friend" });
+    }
+
+    // get remove index
+    console.log(user.friend);
+    const removeIndex = user.friends
+
+      .map((friend) => friend.user.toString())
+      .indexOf(req.user.id);
+
+    user.friends.splice(removeIndex, 1);
+    await user.save();
+
+    res.json(user.friends);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server error");
+  }
+});
 
 module.exports = router;
