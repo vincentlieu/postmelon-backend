@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express();
+const cors = require('cors');
 const connectDB = require("./config/db");
 const auth = require('./middleware/auth')
 
@@ -7,6 +8,8 @@ const usersRouter = require("./routes/api/users");
 const authRouter = require('./routes/api/auth');
 const postsRouter = require('./routes/api/post');
 const profileRouter = require('./routes/api/profile');
+
+app.use(cors());
 
 app.get("/", (req, res) => res.send("API RUNNING"));
 
