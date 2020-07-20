@@ -26,7 +26,6 @@ app.use('/api/auth', authRouter);
 app.use('/api/users', usersRouter);
 // OTHER THAN LOGIN OTHER ROUTES WILL RUN THROUGH THE AUTH MIDDLEWEAR
 app.all('/*', auth);
-app.use("/api/users", usersRouter);
 app.use("/api/posts", postsRouter);
 app.use("/api/profile", profileRouter);
 
