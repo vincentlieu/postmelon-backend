@@ -1,60 +1,77 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const Post = require('../../models/Post');
+const Post = require("../../models/Post");
+const auth = require("../../middleware/auth");
+const { check, validationResult } = require("express-validator");
 
 // GET ALL POST
-router.get('/', (req, res) => {
-  Post.find()
-    .sort({ createdDate: -1 })
-    .then((posts) => (posts.length > 0 ? res.json(posts) : res.status(204)));
+router.get("/", auth, async (req, res) => {
+  try {
+    const posts = await Post.find().sort({ date: -1 });
+    res.json(posts);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server Error");
+  }
 });
 
 // CREATE NEW POST
-router.post('/', (req, res) => {
-  const authorId = req.user.id;
-  const content = req.body.content;
+router.post(
+  "/",
+  [auth, [check("content", "Text is required").not().isEmpty()]],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
 
-  const newPost = new Post({
-    authorId,
-    content,
-  });
+    try {
+      const user = await User.findById(req.user.id).select("-password");
+      const newPost = new Post({
+        content: req.body.content,
+        name: user.name,
+        avatar: user.avatar,
+        user: req.user.id,
+      });
 
-  newPost
-    .save()
-    .then(() =>
-      res.json({ message: 'Successfully created.', createdPost: newPost })
-    )
-    .catch((error) =>
-      res.status(400).json(`ERROR: ${error.errors.description}`)
-    );
-});
+      const post = await newPost.save();
+      res.json(post);
+    } catch (err) {
+      console.error(err.message);
+      res.status(500).send("Server Error");
+    }
+  }
+);
 
 // REMOVE POST
-router.delete('/:id', async (req, res) => {
-
+router.delete("/:id", async (req, res) => {
   try {
-    const user = req.user.id
-    const post = await Post.findById(req.params.id)
+    const user = req.user.id;
+    const post = await Post.findById(req.params.id);
 
-    if (user != post.authorId) { return res.status(401).json({ message: "You are not authorized to remove this post.", postId: post.id }) }
-    
-    Post.findByIdAndDelete(req.params.id, async () => { })
-      .then(() =>
-        res.json({
-          message: 'Post successfully deleted.',
-          postId: req.params.id,
-        }))
-  }
-  catch (error) {
+    if (user != post.authorId) {
+      return res.status(401).json({
+        message: "You are not authorized to remove this post.",
+        postId: post.id,
+      });
+    }
+
+    Post.findByIdAndDelete(req.params.id, async () => {}).then(() =>
+      res.json({
+        message: "Post successfully deleted.",
+        postId: req.params.id,
+      })
+    );
+  } catch (error) {
     res.status(400).json({
-      message: 'Cannot delete a post that does not exist.',
+      message: "Cannot delete a post that does not exist.",
       postId: req.params.id,
-    })
+    });
   }
 });
 
 // GET POST BY AUTHOR ID
-router.get('/all', (req, res) => {
+router.get("/all", (req, res) => {
   Post.find({ authorId: req.user.id })
     .sort({ createdDate: -1 })
     .then((posts) =>
@@ -69,7 +86,7 @@ router.get('/all', (req, res) => {
 });
 
 // LIKE POST
-router.put('/:id/like', async (req, res) => {
+router.put("/:id/like", async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
 
@@ -80,25 +97,25 @@ router.put('/:id/like', async (req, res) => {
     ) {
       return res
         .status(400)
-        .json({ message: 'Post has been already liked.', postId: post.id });
+        .json({ message: "Post has been already liked.", postId: post.id });
     }
 
     post.likes.unshift({ user: req.user.id });
     post.save().then(
       res.json({
-        message: 'Post liked',
+        message: "Post liked",
         postId: post.id,
         totalLikes: post.likes.length,
         usersLiked: post.likes,
       })
     );
   } catch (err) {
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: "Server error" });
   }
 });
 
 // UNLIKE POST
-router.put('/:id/unlike', async (req, res) => {
+router.put("/:id/unlike", async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
 
@@ -109,7 +126,7 @@ router.put('/:id/unlike', async (req, res) => {
     ) {
       return res
         .status(400)
-        .json({ message: 'Post has not been liked yet.', postId: post.id });
+        .json({ message: "Post has not been liked yet.", postId: post.id });
     }
 
     // GET INDEX POSITION OF USER ID
@@ -123,14 +140,14 @@ router.put('/:id/unlike', async (req, res) => {
     res.json(post.likes);
   } catch (err) {
     console.error(err.message);
-    res.status(500).send('Server error');
+    res.status(500).send("Server error");
   }
 });
 
 // ADD COMMENT TO POST
-router.post('/:id/comments', async (req, res) => {
+router.post("/:id/comments", async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select('-password');
+    const user = await User.findById(req.user.id).select("-password");
     const post = await Post.findById(req.params.id);
 
     const newComment = {
@@ -145,12 +162,12 @@ router.post('/:id/comments', async (req, res) => {
     await post.save();
     res.json(post.comments);
   } catch (error) {
-    res.status(500).json({ message: 'Server Error' });
+    res.status(500).json({ message: "Server Error" });
   }
 });
 
 // EDIT COMMENT FROM POST
-router.put('/:id/comments/:commentId', async (req, res) => {
+router.put("/:id/comments/:commentId", async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
     const comment = post.comments.find(
@@ -158,20 +175,20 @@ router.put('/:id/comments/:commentId', async (req, res) => {
     );
 
     if (!comment) {
-      return res.status(404).json({ message: 'Comment does not exist.' });
+      return res.status(404).json({ message: "Comment does not exist." });
     }
 
     if (comment.user.toString() !== req.user.id) {
       return res
         .status(401)
-        .json({ message: 'You are unauthorized to edit this comment.' });
+        .json({ message: "You are unauthorized to edit this comment." });
     }
 
     comment.content = req.body.content;
     comment.modifiedDate = Date.now();
     post.save().then(
       res.status(200).json({
-        message: 'Comment updated successfully',
+        message: "Comment updated successfully",
         commentUpdated: comment,
       })
     );
@@ -181,7 +198,7 @@ router.put('/:id/comments/:commentId', async (req, res) => {
 });
 
 // REMOVE COMMENT FROM POST
-router.delete('/:id/comments/:commentId', async (req, res) => {
+router.delete("/:id/comments/:commentId", async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
     const comment = post.comments.find(
@@ -189,13 +206,13 @@ router.delete('/:id/comments/:commentId', async (req, res) => {
     );
 
     if (!comment) {
-      return res.status(404).json({ message: 'Comment does not exist.' });
+      return res.status(404).json({ message: "Comment does not exist." });
     }
 
     if (comment.user.toString() !== req.user.id) {
       return res
         .status(401)
-        .json({ message: 'You are unauthorized to remove this comment.' });
+        .json({ message: "You are unauthorized to remove this comment." });
     }
 
     const removeIndex = post.comments
@@ -207,33 +224,33 @@ router.delete('/:id/comments/:commentId', async (req, res) => {
 
     res.json(post.comments);
   } catch (error) {
-    res.status(500).json({ message: 'Server Error' });
+    res.status(500).json({ message: "Server Error" });
   }
 });
 
 // SHOW INDIVIDUAL POST
-router.get('/:id', (req, res) => {
+router.get("/:id", (req, res) => {
   Post.findById(req.params.id)
     .then((post) => res.json(post))
     .catch((error) =>
       res
         .status(404)
-        .json({ message: 'Post does not exist.', postId: req.params.id })
+        .json({ message: "Post does not exist.", postId: req.params.id })
     );
 });
 
 // UPDATE INDIVIDUAL POST
-router.put('/:id', async (req, res) => {
+router.put("/:id", async (req, res) => {
   try {
     const user = req.user.id;
     const post = await Post.findById(req.params.id);
 
     if (user != post.authorId) {
-      res.status(401).json({ message: 'Unauthorized' });
+      res.status(401).json({ message: "Unauthorized" });
     }
 
     if (!req.body.content) {
-      res.status(400).json({ message: 'You must provide content to a post.' });
+      res.status(400).json({ message: "You must provide content to a post." });
     }
 
     Post.findByIdAndUpdate(req.params.id, {
@@ -243,18 +260,21 @@ router.put('/:id', async (req, res) => {
       },
     }).then(() =>
       res.json({
-        message: 'Post successfully updated.',
+        message: "Post successfully updated.",
         postId: req.params.id,
       })
     );
   } catch (error) {
-    res.status(404).json({ message: "Cannot update a post that does not exist.", postId: req.params.id });
+    res.status(404).json({
+      message: "Cannot update a post that does not exist.",
+      postId: req.params.id,
+    });
   }
 });
 
 // BELOW REMOVES ALL POSTS
-router.delete('/', (req, res) => {
-  Post.remove({}).then(() => res.json('Removed all posts'));
+router.delete("/", (req, res) => {
+  Post.remove({}).then(() => res.json("Removed all posts"));
 });
 
 module.exports = router;
