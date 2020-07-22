@@ -31,7 +31,7 @@ router.post(
         content: req.body.content,
         name: user.name,
         avatar: user.avatar,
-        user: req.user.id,
+        authorId: req.user.id,
       });
 
       const post = await newPost.save();
@@ -45,6 +45,7 @@ router.post(
 
 // REMOVE POST
 router.delete("/:id", async (req, res) => {
+
   try {
     const user = req.user.id;
     const post = await Post.findById(req.params.id);
@@ -95,54 +96,30 @@ router.put("/:id/like", async (req, res) => {
       post.likes.filter((like) => like.user.toString() === req.user.id).length >
       0
     ) {
-      return res
-        .status(400)
-        .json({ message: "Post has been already liked.", postId: post.id });
-    }
+      const removeIndex = post.likes
+        .map((like) => like.user.toString())
+        .indexOf(req.user.id);
 
-    post.likes.unshift({ user: req.user.id });
-    post.save().then(
-      res.json({
-        message: "Post liked",
-        postId: post.id,
-        totalLikes: post.likes.length,
-        usersLiked: post.likes,
-      })
-    );
+      post.likes.splice(removeIndex, 1);
+      await post.save();
+
+      return res.status(200).json(post.likes);
+    } else {
+      post.likes.unshift({ user: req.user.id });
+      post.save().then(
+        res.json({
+          message: "Post liked",
+          postId: post.id,
+          totalLikes: post.likes.length,
+          usersLiked: post.likes,
+        })
+      );
+    }
   } catch (err) {
     res.status(500).json({ message: "Server error" });
   }
 });
 
-// UNLIKE POST
-router.put("/:id/unlike", async (req, res) => {
-  try {
-    const post = await Post.findById(req.params.id);
-
-    // CHECK IF THE POST HAS BEEN LIKED BY USER
-    if (
-      post.likes.filter((like) => like.user.toString() === req.user.id)
-        .length === 0
-    ) {
-      return res
-        .status(400)
-        .json({ message: "Post has not been liked yet.", postId: post.id });
-    }
-
-    // GET INDEX POSITION OF USER ID
-    const removeIndex = post.likes
-      .map((like) => like.user.toString())
-      .indexOf(req.user.id);
-
-    post.likes.splice(removeIndex, 1);
-    await post.save();
-
-    res.json(post.likes);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Server error");
-  }
-});
 
 // ADD COMMENT TO POST
 router.post("/:id/comments", async (req, res) => {
