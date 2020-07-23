@@ -123,10 +123,15 @@ router.put("/:id/like", async (req, res) => {
 
 // ADD COMMENT TO POST
 router.post("/:id/comments", async (req, res) => {
+
+  console.log(req.body);
+  
   try {
     const user = await User.findById(req.user.id).select("-password");
     const post = await Post.findById(req.params.id);
 
+    if (!req.body.content) { res.status(400).json({ message: 'Content cannot be empty.' }) }
+    
     const newComment = {
       content: req.body.content,
       name: user.name,
@@ -139,7 +144,7 @@ router.post("/:id/comments", async (req, res) => {
     await post.save();
     res.json(post.comments);
   } catch (error) {
-    res.status(500).json({ message: "Server Error" });
+    res.status(500).json({ message: error });
   }
 });
 
