@@ -7,16 +7,6 @@ const config = require("config");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
-// route GET api/auth
-
-router.get("/", auth, async (req, res) => {
-  try {
-    const user = await User.findById(req.user.id).select("-password");
-    res.json(user);
-  } catch (err) {
-    console.error(err.message);
-  }
-});
 // @route POST api/auth
 // @desc authenticate user and get token
 // @access Plublic
