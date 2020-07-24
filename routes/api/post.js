@@ -32,6 +32,7 @@ router.post(
         name: user.name,
         avatar: user.avatar,
         authorId: req.user.id,
+        date: new Date()
       });
 
       const post = await newPost.save();
@@ -240,10 +241,11 @@ router.put("/:id", async (req, res) => {
         content: req.body.content,
         modifiedDate: new Date(Date.now()),
       },
-    }).then(() =>
+    }, {new: true}).then((post) =>
       res.json({
-        message: "Post successfully updated.",
-        postId: req.params.id,
+        post
+        // message: "Post successfully updated.",
+        // postId: req.params.id,
       })
     );
   } catch (error) {
