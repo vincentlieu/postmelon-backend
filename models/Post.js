@@ -52,8 +52,8 @@ const postSchema = new Schema({
     },
   ],
   date: {
-    type: Date,
-  },
+    type: Date
+  }
 });
 
 const Post = mongoose.model("Post", postSchema);
