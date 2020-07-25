@@ -32,6 +32,7 @@ router.post(
         name: user.name,
         avatar: user.avatar,
         authorId: req.user.id,
+        date: new Date(Date.now())
       });
 
       const post = await newPost.save();
@@ -103,16 +104,14 @@ router.put("/:id/like", async (req, res) => {
       post.likes.splice(removeIndex, 1);
       await post.save();
 
-      return res.status(200).json(post.likes);
+      return res.status(200).json(post);
     } else {
       post.likes.unshift({ user: req.user.id });
-      post.save().then(
-        res.json({
-          message: "Post liked",
-          postId: post.id,
-          totalLikes: post.likes.length,
-          usersLiked: post.likes,
-        })
+      post.save().then(res.json(post)
+        // message: "Post liked",
+        // postId: post.id,
+        // totalLikes: post.likes.length,
+        // usersLiked: post.likes,
       );
     }
   } catch (err) {
@@ -123,10 +122,13 @@ router.put("/:id/like", async (req, res) => {
 
 // ADD COMMENT TO POST
 router.post("/:id/comments", async (req, res) => {
+  
   try {
     const user = await User.findById(req.user.id).select("-password");
     const post = await Post.findById(req.params.id);
 
+    if (!req.body.content) { res.status(400).json({ message: 'Content cannot be empty.' }) }
+    
     const newComment = {
       content: req.body.content,
       name: user.name,
@@ -134,12 +136,13 @@ router.post("/:id/comments", async (req, res) => {
       user: req.user.id,
     };
 
+    post.modifiedDate = Date.now()
     post.comments.unshift(newComment);
 
     await post.save();
-    res.json(post.comments);
+    res.json(post);
   } catch (error) {
-    res.status(500).json({ message: "Server Error" });
+    res.status(500).json({ message: error });
   }
 });
 
@@ -192,14 +195,10 @@ router.delete("/:id/comments/:commentId", async (req, res) => {
         .json({ message: "You are unauthorized to remove this comment." });
     }
 
-    const removeIndex = post.comments
-      .map((comment) => comment.user.toString())
-      .indexOf(req.user.id);
+    post.comments.id(comment).remove()
+    post.save()
 
-    post.comments.splice(removeIndex, 1);
-    await post.save();
-
-    res.json(post.comments);
+    res.json(post);
   } catch (error) {
     res.status(500).json({ message: "Server Error" });
   }
@@ -235,10 +234,11 @@ router.put("/:id", async (req, res) => {
         content: req.body.content,
         modifiedDate: new Date(Date.now()),
       },
-    }).then(() =>
+    }, {new: true}).then((post) =>
       res.json({
-        message: "Post successfully updated.",
-        postId: req.params.id,
+        post
+        // message: "Post successfully updated.",
+        // postId: req.params.id,
       })
     );
   } catch (error) {

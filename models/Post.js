@@ -31,7 +31,7 @@ const postSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "users",
       },
-      text: {
+      content: {
         type: String,
         required: true,
       },
@@ -41,7 +41,7 @@ const postSchema = new Schema({
       avatar: {
         type: String,
       },
-      date: {
+      createdDate: {
         type: Date,
         default: Date.now,
       },
@@ -52,9 +52,8 @@ const postSchema = new Schema({
     },
   ],
   date: {
-    type: Date,
-    default: Date.now,
-  },
+    type: Date
+  }
 });
 
 const Post = mongoose.model("Post", postSchema);
