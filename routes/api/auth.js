@@ -7,16 +7,19 @@ const config = require("config");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
-// route GET api/auth
-
+// @route GET api/auth
+//
+// @access Plublic
 router.get("/", auth, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("-password");
     res.json(user);
   } catch (err) {
     console.error(err.message);
+    res.statusa(500).send("server error");
   }
 });
+
 // @route POST api/auth
 // @desc authenticate user and get token
 // @access Plublic
