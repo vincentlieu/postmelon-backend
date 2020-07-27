@@ -17,10 +17,41 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+
   date: {
     type: Date,
     default: Date.now,
   },
+  bio: [
+    {
+      user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "users",
+      },
+      content: {
+        type: String,
+      },
+
+      date: {
+        type: Date,
+        default: Date.now,
+      },
+    },
+  ],
+
+  dob: [
+    {
+      user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "users",
+      },
+
+      dob: {
+        type: Date,
+      },
+    },
+  ],
+
   friends: [
     {
       user: {

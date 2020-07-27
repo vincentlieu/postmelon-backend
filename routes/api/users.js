@@ -8,6 +8,22 @@ const jwt = require("jsonwebtoken");
 const config = require("config");
 const auth = require("../../middleware/auth");
 
+// create / update profile
+
+// get user by id
+
+router.get("/:id", auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("-password");
+    res.json(user);
+  } catch (err) {
+    console.error(err.message);
+    res.statusa(500).send("server error");
+  }
+});
+
+// get all user
+
 router.get("/", auth, async (req, res) => {
   try {
     const users = await User.find().sort({ date: -1 });
