@@ -70,7 +70,7 @@ router.post(
         { expiresIn: 360000 },
         (err, token) => {
           if (err) throw err;
-          res.json({ token });
+          res.json({ token, userId: payload.user.id });
         }
       ); // need secret key from default.json
     } catch (err) {
