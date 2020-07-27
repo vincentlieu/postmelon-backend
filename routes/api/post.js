@@ -166,11 +166,13 @@ router.put("/:id/comments/:commentId", async (req, res) => {
 
     comment.content = req.body.content;
     comment.modifiedDate = Date.now();
-    post.save().then(
-      res.status(200).json({
-        message: "Comment updated successfully",
-        commentUpdated: comment,
-      })
+    post.save()
+      .then(
+      res.status(200).json(
+        post
+        // message: "Comment updated successfully",
+        // commentUpdated: comment,
+      )
     );
   } catch (error) {
     res.status(500).json({ message: error });
@@ -235,11 +237,9 @@ router.put("/:id", async (req, res) => {
         modifiedDate: new Date(Date.now()),
       },
     }, {new: true}).then((post) =>
-      res.json({
+      res.json(
         post
-        // message: "Post successfully updated.",
-        // postId: req.params.id,
-      })
+      )
     );
   } catch (error) {
     res.status(404).json({
