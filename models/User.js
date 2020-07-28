@@ -4,6 +4,7 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+
   email: {
     type: String,
     required: true,
@@ -22,35 +23,12 @@ const UserSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-  bio: [
-    {
-      user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "users",
-      },
-      content: {
-        type: String,
-      },
-
-      date: {
-        type: Date,
-        default: Date.now,
-      },
-    },
-  ],
-
-  dob: [
-    {
-      user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "users",
-      },
-
-      dob: {
-        type: Date,
-      },
-    },
-  ],
+  bio: {
+    type: String,
+  },
+  dob: {
+    type: Date,
+  },
 
   friends: [
     {

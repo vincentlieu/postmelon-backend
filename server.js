@@ -1,13 +1,12 @@
 const express = require("express");
 const app = express();
-const cors = require('cors');
+const cors = require("cors");
 const connectDB = require("./config/db");
-const auth = require('./middleware/auth')
+const auth = require("./middleware/auth");
 
 const usersRouter = require("./routes/api/users");
-const authRouter = require('./routes/api/auth');
-const postsRouter = require('./routes/api/post');
-const profileRouter = require('./routes/api/profile');
+const authRouter = require("./routes/api/auth");
+const postsRouter = require("./routes/api/post");
 
 app.use(cors());
 
@@ -23,12 +22,9 @@ app.use(express.json({ extended: false }));
 //CONNECT TO DATABASE
 connectDB();
 
-
 // DEFINE ROUTES
-app.use('/api/auth', authRouter);
-app.use('/api/users', usersRouter);
+app.use("/api/auth", authRouter);
+app.use("/api/users", usersRouter);
 // OTHER THAN LOGIN OTHER ROUTES WILL RUN THROUGH THE AUTH MIDDLEWEAR
-app.all('/*', auth);
+app.all("/*", auth);
 app.use("/api/posts", postsRouter);
-app.use("/api/profile", profileRouter);
-
