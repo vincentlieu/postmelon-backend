@@ -14,7 +14,7 @@ const auth = require("../../middleware/auth");
 
 router.get("/:id", auth, async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select("-password");
+    const user = await User.findById(req.params.id).select("-password");
     res.json(user);
   } catch (err) {
     console.error(err.message);
@@ -181,6 +181,50 @@ router.put("/unfriend/:id", auth, async (req, res) => {
     await user.save();
 
     res.json(user.friends);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server error");
+  }
+});
+
+// create bio
+
+router.put("/bio/", auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+
+    User.findByIdAndUpdate(
+      req.user.id,
+      {
+        $set: {
+          bio: req.body.bio,
+          modifiedDate: new Date(Date.now()),
+        },
+      },
+      { new: true }
+    ).then((user) => res.json(user));
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server error");
+  }
+});
+
+// create dob
+
+router.put("/dob/", auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+
+    User.findByIdAndUpdate(
+      req.user.id,
+      {
+        $set: {
+          dob: req.body.dob,
+          modifiedDate: new Date(Date.now()),
+        },
+      },
+      { new: true }
+    ).then((user) => res.json(user));
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server error");
