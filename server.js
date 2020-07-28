@@ -23,8 +23,8 @@ app.use(express.json({ extended: false }));
 connectDB();
 
 // DEFINE ROUTES
-app.use("/api/auth", authRouter);
 app.use("/api/users", usersRouter);
+app.use('/api/auth', authRouter);
 // OTHER THAN LOGIN OTHER ROUTES WILL RUN THROUGH THE AUTH MIDDLEWEAR
-app.all("/*", auth);
-app.use("/api/posts", postsRouter);
+// app.all("/api/*", auth);
+app.use("/api/posts", postsRouter, auth);
