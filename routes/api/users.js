@@ -2,13 +2,26 @@ const express = require("express");
 const router = express.Router();
 const { check, validationResult } = require("express-validator");
 const User = require("../../models/User");
+const Post = require("../../models/Post");
 const gravatar = require("gravatar");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const config = require("config");
 const auth = require("../../middleware/auth");
 
-// create / update profile
+// get current user profile
+router.get("/me", auth, async (req, res) => {
+  try {
+    const user = await User.findOne({
+      user: req.user.id,
+    });
+
+    res.json(user);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server Error");
+  }
+});
 
 // get user by id
 
@@ -209,26 +222,28 @@ router.put("/bio/", auth, async (req, res) => {
   }
 });
 
-// create dob
+// @route Delete api/users/
+// @desc delete user
+// @access public
 
-router.put("/dob/", auth, async (req, res) => {
+router.delete("/", auth, async (req, res) => {
   try {
-    const user = await User.findById(req.user.id);
+    //remove user
 
-    User.findByIdAndUpdate(
-      req.user.id,
-      {
-        $set: {
-          dob: req.body.dob,
-          modifiedDate: new Date(Date.now()),
-        },
-      },
-      { new: true }
-    ).then((user) => res.json(user));
+    await User.findOneAndRemove({ _id: req.user.id });
+
+    await Post.deleteMany({ authorId: req.user.id }, (err, result) => {
+      if (err) {
+        res.send(err);
+      } else {
+        res.send(result);
+      }
+    });
+
+    res.json({ msg: "user remove" });
   } catch (err) {
     console.error(err.message);
-    res.status(500).send("Server error");
+    res.status(500).send("Server Error");
   }
 });
-
 module.exports = router;
