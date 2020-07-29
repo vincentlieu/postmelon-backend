@@ -108,10 +108,6 @@ router.put("/:id/like", async (req, res) => {
     } else {
       post.likes.unshift({ user: req.user.id });
       post.save().then(res.json(post)
-        // message: "Post liked",
-        // postId: post.id,
-        // totalLikes: post.likes.length,
-        // usersLiked: post.likes,
       );
     }
   } catch (err) {
@@ -122,6 +118,8 @@ router.put("/:id/like", async (req, res) => {
 
 // ADD COMMENT TO POST
 router.post("/:id/comments", async (req, res) => {
+
+  console.log(req.body.content)
   
   try {
     const user = await User.findById(req.user.id).select("-password");
@@ -170,8 +168,6 @@ router.put("/:id/comments/:commentId", async (req, res) => {
       .then(
       res.status(200).json(
         post
-        // message: "Comment updated successfully",
-        // commentUpdated: comment,
       )
     );
   } catch (error) {
