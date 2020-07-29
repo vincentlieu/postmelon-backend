@@ -118,6 +118,8 @@ router.put("/:id/like", async (req, res) => {
 
 // ADD COMMENT TO POST
 router.post("/:id/comments", async (req, res) => {
+
+  console.log(req.body.content)
   
   try {
     const user = await User.findById(req.user.id).select("-password");
