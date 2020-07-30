@@ -32,7 +32,7 @@ router.post(
         name: user.name,
         avatar: user.avatar,
         authorId: req.user.id,
-        date: new Date(Date.now())
+        date: new Date(Date.now()),
       });
 
       const post = await newPost.save();
@@ -46,7 +46,6 @@ router.post(
 
 // REMOVE POST
 router.delete("/:id", async (req, res) => {
-
   try {
     const user = req.user.id;
     const post = await Post.findById(req.params.id);
@@ -107,26 +106,25 @@ router.put("/:id/like", async (req, res) => {
       return res.status(200).json(post);
     } else {
       post.likes.unshift({ user: req.user.id });
-      post.save().then(res.json(post)
-      );
+      post.save().then(res.json(post));
     }
   } catch (err) {
     res.status(500).json({ message: "Server error" });
   }
 });
 
-
 // ADD COMMENT TO POST
 router.post("/:id/comments", async (req, res) => {
+  console.log(req.body.content);
 
-  console.log(req.body.content)
-  
   try {
     const user = await User.findById(req.user.id).select("-password");
     const post = await Post.findById(req.params.id);
 
-    if (!req.body.content) { res.status(400).json({ message: 'Content cannot be empty.' }) }
-    
+    if (!req.body.content) {
+      res.status(400).json({ message: "Content cannot be empty." });
+    }
+
     const newComment = {
       content: req.body.content,
       name: user.name,
@@ -134,7 +132,7 @@ router.post("/:id/comments", async (req, res) => {
       user: req.user.id,
     };
 
-    post.modifiedDate = Date.now()
+    post.modifiedDate = Date.now();
     post.comments.unshift(newComment);
 
     await post.save();
@@ -164,12 +162,7 @@ router.put("/:id/comments/:commentId", async (req, res) => {
 
     comment.content = req.body.content;
     comment.modifiedDate = Date.now();
-    post.save()
-      .then(
-      res.status(200).json(
-        post
-      )
-    );
+    post.save().then(res.status(200).json(post));
   } catch (error) {
     res.status(500).json({ message: error });
   }
@@ -193,8 +186,8 @@ router.delete("/:id/comments/:commentId", async (req, res) => {
         .json({ message: "You are unauthorized to remove this comment." });
     }
 
-    post.comments.id(comment).remove()
-    post.save()
+    post.comments.id(comment).remove();
+    post.save();
 
     res.json(post);
   } catch (error) {
@@ -227,16 +220,16 @@ router.put("/:id", async (req, res) => {
       res.status(400).json({ message: "You must provide content to a post." });
     }
 
-    Post.findByIdAndUpdate(req.params.id, {
-      $set: {
-        content: req.body.content,
-        modifiedDate: new Date(Date.now()),
+    Post.findByIdAndUpdate(
+      req.params.id,
+      {
+        $set: {
+          content: req.body.content,
+          modifiedDate: new Date(Date.now()),
+        },
       },
-    }, {new: true}).then((post) =>
-      res.json(
-        post
-      )
-    );
+      { new: true }
+    ).then((post) => res.json(post));
   } catch (error) {
     res.status(404).json({
       message: "Cannot update a post that does not exist.",

@@ -229,14 +229,10 @@ router.put("/bio/", auth, async (req, res) => {
 router.delete("/", auth, async (req, res) => {
   try {
     //remove user
-
     await User.findOneAndRemove({ _id: req.user.id });
-
     await Post.deleteMany({ authorId: req.user.id }, (err, result) => {
       if (err) {
         res.send(err);
-      } else {
-        res.send(result);
       }
     });
 
