@@ -8,6 +8,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const config = require("config");
 const auth = require("../../middleware/auth");
+require('dotenv').config();
 
 // get current user profile
 router.get("/me", auth, async (req, res) => {
@@ -117,7 +118,7 @@ router.post(
 
       jwt.sign(
         payload,
-        config.get("jwttoken"),
+        process.env.TOKEN,
         { expiresIn: 36000 },
         (err, token) => {
           if (err) throw err;

@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const config = require("config");
+require('dotenv').config();
 
 module.exports = function (req, res, next) {
   // Get token from header
@@ -13,7 +14,7 @@ module.exports = function (req, res, next) {
   // verify token
 
   try {
-    const decoded = jwt.verify(token, config.get("jwttoken"));
+    const decoded = jwt.verify(token, process.env.TOKEN);
 
     req.user = decoded.user; // take request object assign value to user
     next();
