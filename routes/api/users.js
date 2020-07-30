@@ -121,7 +121,7 @@ router.post(
         { expiresIn: 36000 },
         (err, token) => {
           if (err) throw err;
-          res.json({ token });
+          res.json({ token, userId: user.id });
         }
       );
     } catch (err) {
@@ -137,9 +137,9 @@ router.put("/friend/:id", auth, async (req, res) => {
   try {
     const friend = await User.findById(req.params.id); // who i wanna add
 
+    console.log(friend)
+
     const user = await User.findById(req.user.id); // me
-    // console.log(friend);
-    // console.log(user);
 
     const newFriend = {
       name: friend.name,

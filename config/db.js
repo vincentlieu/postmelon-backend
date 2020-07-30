@@ -1,7 +1,7 @@
 mongoose = require("mongoose");
-const config = require("config");
+require('dotenv').config();
 
-const db = config.get("ATLAS_URI");
+const db = process.env.ATLAS_URI;
 
 const connectDB = async () => {
   try {

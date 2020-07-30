@@ -16,7 +16,7 @@ router.get("/", auth, async (req, res) => {
     res.json(user);
   } catch (err) {
     console.error(err.message);
-    res.statusa(500).send("server error");
+    res.status(500).send("server error");
   }
 });
 
@@ -66,7 +66,7 @@ router.post(
       };
       jwt.sign(
         payload,
-        config.get("jwttoken"),
+        process.env.TOKEN,
         { expiresIn: 360000 },
         (err, token) => {
           if (err) throw err;
